@@ -115,7 +115,7 @@ float timeadjust(float vel) {
 
 int x = (100* int(vel))/ maxSpd; // Current bike velocity in percentage of its maximum
 Serial.println(x);
-if ( (x>100) || (x<=0) ){ return measuringwindowDef; }
+if ( (x>100) || (x<0) ){ return measuringwindowDef; }
 
 float t = (measuringwindowDef/100  * (100 - x)) + measuringwindowDef;     // For example, if default time window = 0.5 sec, and last measured velosity is 3km/h (10% of 30km/h),
                                                                        // then measuringwindow will be on 90% more that default measuringwindowDef.  
