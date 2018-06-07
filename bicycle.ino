@@ -13,6 +13,9 @@ int maxSpd = 30; // km/h. expected max velocity of bike, used for time window ca
 float koef;
 int outputPin = 13; 
 
+volatile bool pin_trigger_disabled;
+volatile unsigned long int rise_time;
+
 /*
 
 /////////////////// LCD SHIELD /////////////////////
@@ -61,7 +64,9 @@ void setup() {
   measuringwindow =  measuringwindowDef;
   pinMode(gerkonPinIN, INPUT);  
   attachInterrupt(digitalPinToInterrupt(gerkonPinIN), wheel, RISING);
- 
+
+  pin_trigger_disabled = false;
+  rise_time = 0;
  // pinMode(outputPin, OUTPUT);    
 
 
@@ -93,7 +98,8 @@ whLastCount = whCount;
 //lcd.print (spd); 
 
 
-Serial.println(spd);
+Serial.println(whCount-whLastCount);
+Serial.println(whCount);
 //measuringwindow = timeadjust(spd);
 
 //Serial.println(spd);
@@ -125,9 +131,36 @@ return t;
 }
 
 
+/*
+void wheel() {   // interrupt function. 
 
-void wheel()
-{
- whCount ++;
-}
+  if (!pin_trigger_disabled)    // switch bounces protection.
+  {
+    pin_trigger_disabled = true; 
+    rise_time = millis();
+    whCount ++;   // Wheel spining counter
+    return 0;
+  }
+
+  if (pin_trigger_disabled  && rise_time > 0)   // if interrupt was made less than 50
+                                                // then it's switching chatter and must be filtered.
+  {
+    if (millis() - rise_time >50)
+    {
+      pin_trigger_disabled = false;
+      rise_time = 0;
+    }
+    
+  }
+  */
+
+void wheel () { // interrupt function. 
+
+   if ((millis() - 100) >  rise_time)  // if interrupt was made less than 100
+                                        // then it's switching chatter and must be filtered.
+   {
+     whCount ++;   // Wheel spining counter
+     rise_time = millis();
+   }
+                }
 
